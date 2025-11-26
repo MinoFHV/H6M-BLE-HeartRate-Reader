@@ -94,7 +94,7 @@
 
         async function fetchHeartRate() {
             try {
-                const response = await fetch('heart_rate.txt');
+                const response = await fetch('../heart_rate.txt');
                 if (response.ok) {
                     const text = await response.text();
                     const bpm = parseInt(text.trim());
