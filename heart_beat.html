@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Beat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 100vh;
+            background: #000;
+            font-family: "Delfino", sans-serif;
+            padding: 0 16px;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .label {
+            font-size: 36px;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+
+        .value {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .heart {
+            display: inline-block;
+            color: #ff1744;
+            font-size: 48px;
+            animation: heartbeat var(--duration, 1s) ease-in-out infinite;
+        }
+
+        .heart.fast {
+            animation: heartbeat var(--duration, 0.6s) ease-in-out infinite;
+        }
+
+        .heart.slow {
+            animation: heartbeat var(--duration, 1.5s) ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            25% {
+                transform: scale(1.2);
+            }
+            50% {
+                transform: scale(1.3);
+            }
+            75% {
+                transform: scale(1.1);
+            }
+        }
+
+        .bpm {
+            font-size: 36px;
+            color: #ff1744;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="label">Heart Rate:</div>
+        <div class="value">
+            <span class="heart" id="heart">♥</span>
+            <span class="bpm" id="bpmDisplay">-- BPM</span>
+        </div>
+    </div>
+
+    <script>
+        const heart = document.getElementById('heart');
+        const bpmDisplay = document.getElementById('bpmDisplay');
+
+        let currentBPM = 0;
+
+        async function fetchHeartRate() {
+            try {
+                const response = await fetch('heart_rate.txt');
+                if (response.ok) {
+                    const text = await response.text();
+                    const bpm = parseInt(text.trim());
+                    
+                    if (!isNaN(bpm) && bpm > 0) {
+                        if (currentBPM !== bpm) {
+                            currentBPM = bpm;
+                            updateHeartbeat(bpm);
+                            bpmDisplay.textContent = bpm + ' BPM';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error reading heart_rate.txt:', error);
+            }
+        }
+
+        function updateHeartbeat(bpm) {
+            heart.classList.remove('fast', 'slow');
+            const animationDuration = (60 / bpm);
+            
+            if (bpm < 60) {
+                heart.classList.add('slow');
+            } else if (bpm > 100) {
+                heart.classList.add('fast');
+            }
+            
+            heart.style.setProperty('--duration', animationDuration + 's');
+        }
+
+        setInterval(fetchHeartRate, 500);
+        fetchHeartRate();
+    </script>
+</body>
+</html>
