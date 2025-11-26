@@ -2,6 +2,9 @@ import asyncio
 from bleak import BleakClient, BleakScanner
 
 
+# All BLE characteristic UUIDs are of the form:# 0000xxxx-0000-1000-8000-00805f9b34fb
+# 2a37 is the standard UUID for Heart Rate Measurement characteristic
+# See https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/Assigned_Numbers.pdf
 HR_MEASUREMENT_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
 TARGET_NAME_SUBSTRING = "H6M"
 
