@@ -102,15 +102,20 @@ class H6MHeartRateMonitor:
                         await client.start_notify(HR_MEASUREMENT_UUID, self.hr_measurement_handler)
 
                         print("Listening for heart rate data... Press Ctrl+C to stop.")
+
                         while True:
                             if not client.is_connected:
                                 raise ConnectionError("BLE connection lost")
-
                             await asyncio.sleep(1)
 
-                except KeyboardInterrupt:
-                    print("Stopping monitor (Ctrl+C pressed)")
-                    break
+                except asyncio.CancelledError:
+                    task = asyncio.current_task()
+                    if task is not None and task.cancelled():
+                        print("Task cancelled, shutting down...")
+                        raise
+
+                    print("BLE operation cancelled unexpectedly. Reconnecting in 5 seconds...")
+                    await asyncio.sleep(5)
 
                 except Exception as e:
                     print(f"Connection error: {e}")
@@ -118,6 +123,7 @@ class H6MHeartRateMonitor:
                     await asyncio.sleep(5)
 
         finally:
+            
             if self.tcp_server is not None:
                 await self.tcp_server.stop()
             self.outputs.close_files()
